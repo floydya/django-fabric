@@ -34,14 +34,14 @@ class ProjectService(Service):
     """
     # System preferences
     # Your project user. Don't call it django. Use your imagination.
-    user = 'floydya'
+    user = ''
 
     # Project preferences
     _project_name = ''
 
     # Repository preferences
     # Use ssh connection not https
-    repository = 'git@gitlab.com:xfloydya/tattoo/crm.git'
+    repository = ''
     branch = 'master'
 
     # Python preferences
