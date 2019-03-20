@@ -1,0 +1,95 @@
+upstream {{ PROJECT_NAME }}_server {
+    server unix://{{DJANGO_SOCKETS_PATH}}/{{ PROJECT_NAME }}.socket fail_timeout=0;
+}
+
+{% if HAS_ASGI %}
+upstream {{ PROJECT_NAME }}_asgi_server {
+    server unix:ASGI_SOCKET fail_timeout=0;
+}
+{% endif %}
+
+server {
+    listen {{ PORT }} default_server;
+    listen [::]:{{ PORT }} default_server ipv6only=on;
+    server_name _;
+
+    open_file_cache max=200000 inactive=20s;
+    open_file_cache_valid 30s;
+    open_file_cache_min_uses 2;
+    open_file_cache_errors on;
+
+    access_log off;
+    error_log off;
+    sendfile on;
+    tcp_nopush on;
+    tcp_nodelay on;
+
+    gzip on;
+    gzip_comp_level    5;
+    gzip_min_length 256;
+    gzip_proxied any;
+    gzip_types
+      application/atom+xml
+       application/javascript
+       application/json
+       application/ld+json
+       application/manifest+json
+       application/rss+xml
+       application/vnd.geo+json
+       application/vnd.ms-fontobject
+       application/x-font-ttf
+       application/x-web-app-manifest+json
+       application/xhtml+xml
+       application/xml
+       font/opentype
+       image/bmp
+       image/svg+xml
+       image/x-icon
+       text/cache-manifest
+       text/css
+       text/plain
+       text/vcard
+       text/vnd.rim.location.xloc
+       text/vtt
+       text/x-component
+       text/x-cross-domain-policy;
+
+    gzip_disable msie6;
+
+    keepalive_timeout 30;
+    keepalive_requests 100000;
+    reset_timedout_connection on;
+    client_body_timeout 10;
+    send_timeout 2;
+
+    client_max_body_size 4G;
+
+    location ~ ^/(uploads|static) {
+		root {{ PATH_TO_PROJECT_ROOT }};
+		expires max;
+	}
+
+
+    {% if HAS_ASGI %}
+    # asgi
+    location ASGI_BASE_URL {
+        proxy_pass http://{{ PROJECT_NAME }}_asgi_server;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+    }
+    {% endif %}
+
+    location / {
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header Host $http_host;
+        proxy_redirect off;
+        proxy_pass http://{{ PROJECT_NAME }}_server;
+    }
+
+    # uwsgi
+    # location / {
+    #     uwsgi_pass 0.0.0.0:9000;
+    #     include uwsgi_params;
+    # }
+}
