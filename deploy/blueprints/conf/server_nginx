@@ -1,6 +1,12 @@
+{% if WEB_SERVICE == 'uwsgi' %}
+upstream {{ PROJECT_NAME}}_server {
+    server unix://{{DJANGO_SOCKETS_PATH}}/uwsgi.sock fail_timeout=0;
+}
+{% else %}
 upstream {{ PROJECT_NAME }}_server {
     server unix://{{DJANGO_SOCKETS_PATH}}/{{ PROJECT_NAME }}.socket fail_timeout=0;
 }
+{% endif %}
 
 {% if HAS_ASGI %}
 upstream {{ PROJECT_NAME }}_asgi_server {
@@ -65,7 +71,7 @@ server {
     client_max_body_size 4G;
 
     location ~ ^/(uploads|static) {
-		root {{ PATH_TO_PROJECT_ROOT }};
+		root {{ PATH_TO_PROJECT_ROOT }}/app;
 		expires max;
 	}
 
@@ -80,16 +86,17 @@ server {
     }
     {% endif %}
 
+    {% if WEB_SERVICE == 'uwsgi' %}
+    location / {
+        uwsgi_pass {{ PROJECT_NAME }}_server;
+        include uwsgi_params;
+    }
+    {% else %}
     location / {
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header Host $http_host;
         proxy_redirect off;
         proxy_pass http://{{ PROJECT_NAME }}_server;
     }
-
-    # uwsgi
-    # location / {
-    #     uwsgi_pass 0.0.0.0:9000;
-    #     include uwsgi_params;
-    # }
+    {% endif %}
 }

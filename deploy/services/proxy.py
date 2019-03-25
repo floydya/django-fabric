@@ -35,14 +35,16 @@ class ProxyService(Service):
         self.server.enable_service(self.alias)
 
         has_asgi = hasattr(self.server, 'asgi')
+        service_type = 'uwsgi' if hasattr(self.server, 'uwsgi') else 'gunicorn'
 
         conf = self._render_config(
             'blueprints/conf/server_nginx',
-            PROJECT_NAME=self.server.wsgi.alias,
+            PROJECT_NAME=self.server.uwsgi.alias,
             DJANGO_SOCKETS_PATH=f'/run/{self.server.project.alias}',
             PATH_TO_PROJECT_ROOT=self.server.project.working_dir_path,
             PORT=self.server.project.project_port,
             HAS_ASGI=has_asgi,
+            WEB_SERVICE=service_type,
             ASGI_SOCKET=self.server.asgi.sockets_path if has_asgi else None,
             ASGI_BASE_URL=self.server.asgi.base_url if has_asgi else None,
         )

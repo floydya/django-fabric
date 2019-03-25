@@ -34,14 +34,14 @@ class ProjectService(Service):
     """
     # System preferences
     # Your project user. Don't call it django. Use your imagination.
-    user = ''
+    user = 'floydya'
 
     # Project preferences
     _project_name = ''
 
     # Repository preferences
     # Use ssh connection not https
-    repository = ''
+    repository = 'git@gitlab.com:xfloydya/tattoo/crm.git'
     branch = 'master'
 
     # Python preferences
@@ -54,13 +54,13 @@ class ProjectService(Service):
     project_port = 80
 
     # Use jsmakemessages?
-    JS_MAKE_MESSAGES = False
+    JS_MAKE_MESSAGES = True
 
     # ssh-keygen pass phrase
     pass_phrase = ''
 
     # Non editable in most cases.
-    name = 'gunicorn'  # Name of the WSGI service
+    name = 'uwsgi'  # Name of the WSGI service
     type = 'project'
     wsgi_name = 'app'
     is_global_service = False

@@ -4,13 +4,13 @@ from .base import Service
 
 
 __all__ = (
-    'WSGIService',
+    'GunicornService',
 )
 
 
-class WSGIService(Service):
+class GunicornService(Service):
     name = 'gunicorn'
-    type = 'wsgi'
+    type = 'gunicorn'
     is_global_service = False
 
     def __init__(self, server: 'Server'):

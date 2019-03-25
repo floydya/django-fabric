@@ -1,7 +1,8 @@
 from .proxy import *
 from .database import *
 from .cache import *
-from .wsgi import *
+from .gunicorn import *
+from .uwsgi import *
 from .project import *
 from .celery import *
 from .celery_beat import *
@@ -12,8 +13,12 @@ enabled = [
     CacheService,
     DatabaseService,
     ProjectService,
-    WSGIService,
+
     CeleryService,
     CeleryBeatService,
-    # ASGIService
+
+    ASGIService,
+    
+    #GunicornService,
+    UWSGIService,
 ]
